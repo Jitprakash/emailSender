@@ -4,6 +4,7 @@ import com.jitdev.emailSender.service.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,10 @@ public class EmailServiceImpl implements EmailService {
     //For Logging
     private Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
 
+    //get the user mail
+    @Value("${my-mail}")
+    String userName;
+
     @Autowired
     public EmailServiceImpl(JavaMailSender mailSender) {
         this.mailSender = mailSender;
@@ -32,12 +37,12 @@ public class EmailServiceImpl implements EmailService {
         simpleMailMessage.setTo(to);//Receiver mail address
         simpleMailMessage.setSubject(sub);//subject of the mail
         simpleMailMessage.setText(message);//Text message
-        simpleMailMessage.setFrom("jitprakashstudy2025@gmail.com");//sender mail
+        simpleMailMessage.setFrom(userName);//sender mail
         //Send the mail
         mailSender.send(simpleMailMessage);//it takes a simpleMailMessage or MimeMessage as input
 
         //Log info
-         logger.info("Email has been sent.");
+        logger.info("Email has been sent.");
 
     }
 

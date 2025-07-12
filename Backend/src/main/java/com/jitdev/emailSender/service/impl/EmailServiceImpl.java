@@ -14,17 +14,21 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 @Service
 public class EmailServiceImpl implements EmailService {
 
-    //Require for Mail Service
+    // Require for Mail Service
     JavaMailSender mailSender;
 
-    //For Logging
+    // For Logging
     private Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
 
-    //get the user mail
+    // get the user mail
     @Value("${my-mail}")
     String userMail;
 
@@ -35,57 +39,57 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendEmail(String to, String sub, String message) {
-        //Create a Simple Mail Message
+        // Create a Simple Mail Message
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-        //Set mail properties
-        simpleMailMessage.setTo(to);//Receiver mail address
-        simpleMailMessage.setSubject(sub);//subject of the mail
-        simpleMailMessage.setText(message);//Text message
-        simpleMailMessage.setFrom(userMail);//sender mail
-        //Send the mail
-        mailSender.send(simpleMailMessage);//it takes a simpleMailMessage or MimeMessage as input
+        // Set mail properties
+        simpleMailMessage.setTo(to);// Receiver mail address
+        simpleMailMessage.setSubject(sub);// subject of the mail
+        simpleMailMessage.setText(message);// Text message
+        simpleMailMessage.setFrom(userMail);// sender mail
+        // Send the mail
+        mailSender.send(simpleMailMessage);// it takes a simpleMailMessage or MimeMessage as input
 
-        //Log info
+        // Log info
         logger.info("Email has been sent.");
 
     }
 
     @Override
     public void sendEmail(String[] to, String sub, String message) {
-        //Create a simple Mail Message
+        // Create a simple Mail Message
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-        //Set Mail properties
+        // Set Mail properties
         simpleMailMessage.setTo(to);
         simpleMailMessage.setFrom(userMail);
         simpleMailMessage.setSubject(sub);
         simpleMailMessage.setText(message);
 
-        //send the mail
+        // send the mail
         mailSender.send(simpleMailMessage);
 
-        //log info
+        // log info
         logger.info("Email Sent successfully");
 
     }
 
     @Override
     public void sendEmailWithHtml(String to, String sub, String htmlContent) {
-        //Create a Mime Message
+        // Create a Mime Message
         MimeMessage mimeMessage = mailSender.createMimeMessage();
 
         try {
-            //Create a Mime message helper
+            // Create a Mime message helper
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            //set message data
+            // set message data
             messageHelper.setTo(to);
             messageHelper.setFrom(userMail);
             messageHelper.setSubject(sub);
-            messageHelper.setText(htmlContent,true);
+            messageHelper.setText(htmlContent, true);
 
-            //send mail
+            // send mail
             mailSender.send(mimeMessage);
 
-            //log info
+            // log info
             logger.info("Email Sent!");
         } catch (MessagingException e) {
             throw new RuntimeException(e);
@@ -94,28 +98,54 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendEmailWithFile(String to, String sub, String message, File file) {
-        //Create a Mime Message
+        // Create a Mime Message
         MimeMessage mimeMessage = mailSender.createMimeMessage();
 
         try {
-            //Create a Mime message helper
+            // Create a Mime message helper
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true);
-            //set message data
+            // set message data
             messageHelper.setTo(to);
             messageHelper.setFrom(userMail);
             messageHelper.setSubject(sub);
             messageHelper.setText(message);
 
-            //Create a File System Resource
+            // Create a File System Resource
             FileSystemResource fileSystemResource = new FileSystemResource(file);
-            messageHelper.addAttachment(fileSystemResource.getFilename(),file );
+            messageHelper.addAttachment(fileSystemResource.getFilename(), file);
 
-            //send mail
+            // send mail
             mailSender.send(mimeMessage);
 
-            //log info
+            // log info
             logger.info("Email Sent");
         } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void sendEmailWithFile(String to, String sub, String message, InputStream is) {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+
+        try {
+            MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true);
+            messageHelper.setTo(to);
+            messageHelper.setFrom(userMail);
+            messageHelper.setSubject(sub);
+            messageHelper.setText(message,true);
+
+            File file = new File("src/main/resources/emailAttachment/test.png");
+            Files.copy(is, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            // Create a File System Resource
+            FileSystemResource fileSystemResource = new FileSystemResource(file);
+            messageHelper.addAttachment(fileSystemResource.getFilename(), file);
+
+            mailSender.send(mimeMessage);
+            logger.info("Email Sent");
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

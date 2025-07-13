@@ -1,6 +1,8 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { sendEmail } from '../service/email.service'
+import { Editor } from '@tinymce/tinymce-react';
+
 
 const EmailSender = () => {
 
@@ -15,6 +17,10 @@ const EmailSender = () => {
 
     //A state variable for loader
     const [loader, setLoader] = useState(false)
+
+    //Reference to the Editor
+    const editorRef = useRef(null);
+
 
     //Method to add the changes to emailData
     const handleChanges = (e, name) => {
@@ -44,7 +50,7 @@ const EmailSender = () => {
 
     return (
         <div className='w-screen min-h-screen flex justify-center items-center'>
-            <div id="email_container" className=' md:w-1/2 w-full mx-4 md:mx-0 bg-white border border-white rounded-xl shadow-2xl py-2 px-4'>
+            <div id="email_container" className=' md:w-1/2 w-full mx-4 md:mx-0 bg-white dark:bg-gray-700 border border-white dark:border-gray-700 rounded-xl shadow-2xl py-2 px-4'>
                 <h1 className='text-gray-800 text-2xl font-bold  dark:text-white'> Email Sender Application</h1>
                 <p className='text-gray-400'>Send Email to anyone you want using Springboot</p>
                 <form onSubmit={handleFormSubmit} className='mt-3'>
@@ -89,7 +95,7 @@ const EmailSender = () => {
                             Your message
                         </label>
 
-                        <textarea
+                        {/* <textarea
                             id="message"
                             value={emailData.message}
                             onChange={(e) => handleChanges(e, 'message')}
@@ -99,7 +105,28 @@ const EmailSender = () => {
                             required
                         >
 
-                        </textarea>
+                        </textarea> */}
+                        <Editor
+                            onInit={(evt, editor) => editorRef.current = editor}
+                            apiKey='8w0pdjp9j0wg99ix96ep2z1o5akqy4vqkpdh9uaxy422rf4l'
+                            initialValue="<p>Write your thoughts here..</p>"
+                            onEditorChange={()=>{setEmailData({...emailData,message: editorRef.current.getContent()})}}
+                            init={{
+                                height: 500,
+                                menubar: false,
+                                plugins: [
+                                    'advlist autolink lists link image charmap print preview anchor',
+                                    'searchreplace visualblocks code fullscreen',
+                                    'insertdatetime media table paste code help wordcount'
+                                ],
+                                toolbar: 'undo redo | formatselect | ' +
+                                    'blocks fontfamily fontsize |' +
+                                    'bold italic backcolor | alignleft aligncenter ' +
+                                    'alignright alignjustify | bullist numlist outdent indent | ' +
+                                    'removeformat | help',
+                                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                            }}
+                        />
                     </div>
 
                     {/* Loader only shows when sending */}

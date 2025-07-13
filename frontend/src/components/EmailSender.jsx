@@ -95,17 +95,6 @@ const EmailSender = () => {
                             Your message
                         </label>
 
-                        {/* <textarea
-                            id="message"
-                            value={emailData.message}
-                            onChange={(e) => handleChanges(e, 'message')}
-                            rows="15"
-                            className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            placeholder="Write your thoughts here..."
-                            required
-                        >
-
-                        </textarea> */}
                         <Editor
                             onInit={(evt, editor) => editorRef.current = editor}
                             apiKey='8w0pdjp9j0wg99ix96ep2z1o5akqy4vqkpdh9uaxy422rf4l'
